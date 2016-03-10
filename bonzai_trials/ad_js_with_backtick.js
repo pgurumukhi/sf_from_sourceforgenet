@@ -696,6 +696,7 @@ var sdkObject = function createSdkObject() {
 };
 sdkObject.prototype = {
 	expandAd : function(pw, ph,pageToShowDims) {
+		alert('expandAd - 2');
 		var self = this;
 			self.mraidObj.expandAd(pw, ph,pageToShowDims);
 	},
@@ -4854,6 +4855,7 @@ function getAdBody() {
 
 //This div is the main div from which elements are referenced
 function getAdOverlayDiv() {
+	console.log('getAdOverlayDiv');
     var overlayDiv = getWindowParent().document.getElementsByClassName(getContainerName())[0];
     return overlayDiv;
 }
@@ -4863,6 +4865,7 @@ function removeCSSClass(el, className) {
 }
 
 function showAdPage(page, isLoadComplete, pageAnimes) {
+	console.log('showAdPage:'+page);
     //Method to reset any thing on page after its unloaded
     resetPageToItsDefaultState();
     if (page) {
@@ -4873,13 +4876,56 @@ function showAdPage(page, isLoadComplete, pageAnimes) {
     }
     var pageCSS = page.className;
     var pageEls = page.getElementsByTagName("*"), pageAnimes = pageAnimes || [];
+	
+	//added for Safeframe
+	var extern = window.extern || $sf.ext;
+	var sfAPI = extern;
+	//added for Safeframe ends
+	
     if (isLoadComplete) {
         	var ifrm = getAdInvocationElem();
             var pw = page.clientWidth; //parseFloat(p.style.width);
             var ph = page.clientHeight; //parseFloat(p.style.height);
 
-            ifrm.style.width = pw + "px";
-            ifrm.style.height = ph + "px";
+            //ifrm.style.width = pw + "px";
+            //ifrm.style.height = ph + "px";
+			
+			//added for Safeframe
+			if (extern) {
+				try {
+					console.log('extern.register');
+					extern.register(400, 200, null);
+				} catch (e) {
+					//writeLog("Exception or no safeframes available: " + e.message);
+				}
+			}
+			var g, ex, obj;
+			var expandedWidth = pw,expandedHeight = ph;
+
+			if ($sf.ext) {
+				try {
+					g = $sf.ext.geom(); // the geometry object
+					ex = g && g.exp;
+					obj = {};
+					obj.l=0;
+					//obj.r=300;
+					//obj.b=600;
+					obj.r=expandedHeight;
+					obj.b=expandedWidth;
+					obj.t=0;
+					obj.push=true;
+					//if (Math.abs(ex.l) >= expandedWidth && Math.abs(ex.t) >= expandedHeight) {
+					console.log('before $sf.ext.expand:'+expandedWidth+':'+expandedHeight);
+					$sf.ext.expand(obj);
+					//}
+				} catch (e) {
+					//do not expand, not enough room
+				}
+			} else {
+				//api expansion not supported
+			}
+			//added for Safeframe ends
+			
             //fire page level events
             handleDimensionsForAdPage(page, ispreview, false);  
             adAssetLoaderNew.getAdPageById(AdUTilAPI.getElementId(page)).showVideosForiOS();
@@ -4926,6 +4972,7 @@ function showAdPage(page, isLoadComplete, pageAnimes) {
             if(typeof AdECFHandler == 'object') {
 	            var firstExpPage = getPageToExpand();
 	            AdECFHandler.touchAdCloseAction(adClose);
+				console.log('before AdECFHandler.registerECFExpand:');
 	            AdECFHandler.registerECFExpand(goToPageAction, [firstExpPage], [AdUTilAPI.getElementId(firstExpPage), currentPageId]);
             }
             handleFormatFunctionality();
@@ -4972,6 +5019,7 @@ function handleFormatFunctionality(){
 }
 
 function getPageToExpand(){
+	console.log('getPageToExpand');
 	var firstExpPage = getFirstExpandblePage('full-screen');
 	return firstExpPage;
 }
@@ -5017,7 +5065,7 @@ window.onAdLoad = function(ibody, flgStopAdLoad) {
     	// assetS3BucketUrlForVideo = "https://d3cjywc9gywo2r.cloudfront.net/";
         asUrl = "https://collector.bonzai.ad/rec";
     }*/
-    alert(090);
+    //alert(090);
 	
     // Exposed apis for execute js. Overriding goToPageAction reference because we are overriding goToPageAction for different ad formats.
     mainModule.goToPageAction = goToPageAction;
@@ -5905,6 +5953,7 @@ function handleOrientationChangeEvent() {
 
 //Handle dimensions of add - Based on configured properties
 function handleDimensionsForAdPage(adPage, flgPreview, flgNotSetDims) {
+	console.log('handleDimensionsForAdPage');
     var iframe = getAdInvocationElem();
     var isCustomSdk = "";
     var isFullScrPag = isFullScreenPage(adPage) || adPage.getAttribute('pagetype') == 'loading-page';
@@ -6137,6 +6186,7 @@ function getAvailableScreenWidth(parent) {
     return width;
 }
 function getScreenAvaibaleWidthAndHeight(mraid, orienatationType, pageType, page) {
+	console.log('getScreenAvaibaleWidthAndHeight');
     var screenHeight = '';
     var screenWidth = '';
     if (!isApp) {
@@ -6450,7 +6500,7 @@ function getPageIdsBasedOnPage(pageObj) {
 }
 
 function goToPageAction(pageToShow, src) {
-	
+	console.log('goToPageAction:'+pageToShow+':'+src);
 	if(typeof AdECFHandler == 'object') {
 		AdECFHandler.registerInteraction(src);
 	}
@@ -6541,6 +6591,7 @@ function goToPageAction(pageToShow, src) {
     }
 
     function loadNewPage(pageType) {
+		console.log('loadNewPage:'+pageType);
         //progressBar.init(ph, pageType == 'banner');
         removeCSSClass(ifrm, "animeLoad");
         showAdPage(pageToShow);
@@ -6551,6 +6602,7 @@ function goToPageAction(pageToShow, src) {
         	setOverLayPropsWhenMraidExpand(overlayDiv, pageToShowDims.screenWidth, pageToShowDims.height, pageToShowDims.orienatationType);
         }
         if (isApp) {
+			alert('expandAd - 3');
             sdkObj.expandAd(pw, ph, pageToShowDims);
         }
     }
@@ -6837,6 +6889,7 @@ function resetDimensionOnAdInvocationElem(){
 	
 }
 function setDimensionOfOuterIframe(iframWidth, iframeHeight) {
+	console.log('setDimensionOfOuterIframe');
 if(topIframe){
         changeTopIframeParentPos();
         //	topIframePosition = topIframePosition ? topIframePosition : topIframe.style.position;
@@ -6927,6 +6980,7 @@ function isTransitionRequired(){
 	return true;
 }
 function getFirstExpandblePage(pageType){
+	console.log('getFirstExpandblePage:'+pageType);
     var pp = getAllAdPageElements();
     var pageToShow = "";
     var _seqArr = new Array();
@@ -7150,6 +7204,7 @@ function setGoogleIframeMargin(){
 
 
 function changeTopIframeParentPos() {
+	console.log('changeTopIframeParentPos:'+topIframe);
     if (topIframe) {
         var pNode = topIframe.parentNode;
         var isPosChanged, zindexChanged;
@@ -7389,7 +7444,12 @@ adMraidObj.prototype = {
     	mraid.setOrientationProperties(orientationProperties);
     },
     expandAd: function (pw, ph, pageToShowDims) {
-        var self = this;
+        var extern = window.extern || $sf.ext;
+	    var sfAPI = extern;
+		
+		alert('expandAd - 1');
+
+		var self = this;
         var mraid = self.getMraid();
         var screenDims = self.getScreenSize();
         ph = pageToShowDims.screenHeight; //self.getHeight();
@@ -9160,6 +9220,7 @@ var otplbSettings = '{"flagAutoClose":false,"flagAutoExpand":false,"flagFrequenc
 	};
 	
 	var registerECFExpand = function(fnGotoPageAction, args, killArgs){
+		console.log('registerECFExpand');
 		if(REGISTERED.delegated) return false;
 		else REGISTERED.delegated = true;
 		
@@ -9167,13 +9228,14 @@ var otplbSettings = '{"flagAutoClose":false,"flagAutoExpand":false,"flagFrequenc
 		
 		parseECFJson();
 		args.push(CONST.extTriggerSrc);
-		
+		console.log('registerECFExpand - 1');
 		pullECFScript(function() {
 			if (!REGISTERED.firstRan && !REGISTERED.interacted) {
 				registerAutoExpand(killArgs[0]);
 				if(getScreenShotMode())
 					return;
 				fnGotoPageAction.apply(null, args);
+				console.log('after fnGotoPageAction');
 				if (ecfParam.flagAutoClose) {
 					initiateCloseSequence(function(){
 						if(!REGISTERED.interacted){
