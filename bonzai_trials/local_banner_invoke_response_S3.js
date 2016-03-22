@@ -127,8 +127,8 @@ if (typeof bonzai_testadid != 'undefined' && bonzai_testadid != "") {
         }
 		console.log('req.onload 4');
     };
-    //var surl = "http://d3m98duogo0w61.cloudfront.net/1663d075-656a-48de-a4d1-2cbbe2b4044d_1456152586362_script.js";
-	var surl = "../../bonzai_trials/ad_js_with_backtick.js";
+    var surl = "http://s3-ap-southeast-1.amazonaws.com/mizu-safeframe/safeframe-example/bonzai_trials/ad_js_with_backtick.js";
+	//var surl = "../../bonzai_trials/ad_js_with_backtick.js";
     //if (window.location.protocol == "https:") {
         surl = surl.replace("http://massets.bonzai.ad", "https://d306vfj3mhm2bb.cloudfront.net");
     //}
